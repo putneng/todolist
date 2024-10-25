@@ -1,110 +1,182 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple To-Do List</title>
+    <title>To Do List Putri</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-image: url('assets/background.jpg');
+            background-size: cover;
             margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        .todo-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .todo-list {
-            list-style-type: none;
             padding: 0;
+            color: #000;
         }
-        .todo-item {
-            display: flex;
-            justify-content: space-between;
+        header {
+            background-color: teal;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+        }
+        .container {
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #000;
             padding: 10px;
-            border-bottom: 1px solid #eee;
+            text-align: left;
         }
-        .todo-item:last-child {
-            border-bottom: none;
+        th {
+            background-color: teal;
+            color: white;
         }
-        .button {
+        button {
             background-color: teal;
             color: white;
             border: none;
             padding: 10px 15px;
-            border-radius: 5px;
             cursor: pointer;
+            margin: 5px;
         }
-        .button:hover {
+        button:hover {
             background-color: #005f5f;
         }
-        .form-container {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-        input[type="text"] {
-            flex-grow: 1;
+        footer {
+            background-color: teal;
+            color: white;
+            text-align: center;
             padding: 10px;
-            margin-right: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
 
-<div class="todo-container">
-    <h1>To-Do List</h1>
-    <div class="form-container">
-        <input type="text" id="todoInput" placeholder="Add a new task...">
-        <button class="button" onclick="addTodo()">Add</button>
+<header>
+    TO DO LIST PUTRI
+</header>
+
+<div class="container">
+    <div>
+        <button onclick="showAddTodo()">Tambah Jadwal</button>
     </div>
-    <ul id="todoList" class="todo-list"></ul>
+
+    <table id="todoTable">
+        <thead>
+            <tr>
+                <th>DESKRIPSI</th>
+                <th>JADWAL</th>
+                <th>JAM</th>
+                <th>PRIORITAS</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="todoBody">
+            <tr>
+                <td colspan="5" style="text-align: center;">Belum ada jadwal, tambahkan jadwal terlebih dahulu.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<footer>
+    Copyright: Putrinengsi (2255201179)
+</footer>
+
+<!-- Add Todo Dialog -->
+<div id="addTodoDialog" class="hidden">
+    <div style="padding: 20px; background-color: white; border: 1px solid #000; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000;">
+        <h3>Tambah Jadwal</h3>
+        <label>Deskripsi:</label>
+        <input type="text" id="descriptionInput"><br>
+        <label>Tanggal:</label>
+        <input type="date" id="dateInput"><br>
+        <label>Jam:</label>
+        <input type="time" id="timeInput"><br>
+        <label>Prioritas:</label>
+        <select id="priorityInput">
+            <option value="false">Biasa</option>
+            <option value="true">Prioritas</option>
+        </select><br><br>
+        <button onclick="addTodo()">Tambah</button>
+        <button onclick="hideAddTodo()">Batal</button>
+    </div>
 </div>
 
 <script>
-    function addTodo() {
-        const input = document.getElementById('todoInput');
-        const newTodo = input.value.trim();
-        if (newTodo === '') return;
+    let todos = [];
 
-        const todoList = document.getElementById('todoList');
-
-        const li = document.createElement('li');
-        li.className = 'todo-item';
-        li.innerHTML = `
-            <span>${newTodo}</span>
-            <div>
-                <button class="button" onclick="editTodo(this)">Edit</button>
-                <button class="button" onclick="deleteTodo(this)">Delete</button>
-            </div>
-        `;
-        todoList.appendChild(li);
-        input.value = '';
+    function showAddTodo() {
+        document.getElementById('addTodoDialog').classList.remove('hidden');
     }
 
-    function editTodo(button) {
-        const todoItem = button.parentElement.parentElement;
-        const span = todoItem.querySelector('span');
-        const newDescription = prompt('Edit your task:', span.textContent);
-        if (newDescription !== null && newDescription.trim() !== '') {
-            span.textContent = newDescription;
+    function hideAddTodo() {
+        document.getElementById('addTodoDialog').classList.add('hidden');
+    }
+
+    function addTodo() {
+        const description = document.getElementById('descriptionInput').value;
+        const date = document.getElementById('dateInput').value;
+        const time = document.getElementById('timeInput').value;
+        const isPriority = document.getElementById('priorityInput').value === 'true';
+
+        if (description && date && time) {
+            todos.push({description, date, time, isPriority});
+            updateTodoTable();
+            hideAddTodo();
         }
     }
 
-    function deleteTodo(button) {
-        const todoItem = button.parentElement.parentElement;
-        todoItem.remove();
+    function updateTodoTable() {
+        const todoBody = document.getElementById('todoBody');
+        todoBody.innerHTML = ''; // Clear existing rows
+
+        todos.forEach((todo, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${todo.description}</td>
+                <td>${todo.date}</td>
+                <td>${todo.time}</td>
+                <td>${todo.isPriority ? 'Prioritas' : 'Biasa'}</td>
+                <td>
+                    <button onclick="editTodo(${index})">Edit</button>
+                    <button onclick="deleteTodo(${index})">Hapus</button>
+                </td>
+            `;
+            todoBody.appendChild(row);
+        });
+
+        if (todos.length === 0) {
+            todoBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Belum ada jadwal, tambahkan jadwal terlebih dahulu.</td></tr>';
+        }
+    }
+
+    function editTodo(index) {
+        const todo = todos[index];
+        document.getElementById('descriptionInput').value = todo.description;
+        document.getElementById('dateInput').value = todo.date;
+        document.getElementById('timeInput').value = todo.time;
+        document.getElementById('priorityInput').value = todo.isPriority;
+
+        showAddTodo();
+        deleteTodo(index); // Remove todo after loading it for editing
+    }
+
+    function deleteTodo(index) {
+        todos.splice(index, 1);
+        updateTodoTable();
     }
 </script>
 
